@@ -1,7 +1,7 @@
 # chime-ml
-Code for <a href="http://aclweb.org/anthology/W/W16/W16-6201.pdf">Stowe et al 2016</a>
+Code used in production of <a href="http://aclweb.org/anthology/W/W16/W16-6201.pdf">Stowe et al 2016</a>. There've been significant bug fixes and processing improvements since the paper, but the dataset, methods, and features are the same.
 
-Takes a .json object of tweets. The object contains is keyed by tweet_id.
+Takes a .json object (defaulting to the provided 'data/part1/cleaned.json') of tweets. The object contains is keyed by tweet_id.
 
 <code>
 tweet_id:{'text':''*, 'geo_coords':'[lat, long]' or '[]', 'user':'user name', 'date':'MM-DD-YYYY HH:MM:SS', 'annotations':[list of possibles anns, or one element "None"], 'previous':'tweet_id of previous tweet in user stream', 'next':'tweet_id of next tweet in user stream'}
@@ -21,13 +21,10 @@ kevin.stowe@colorado.edu
 <a href="http://www.numpy.org/">Numpy</a>, for support. SciKit-Learn or NLTK installations should include numpy/scipy.<br>
 
 <h4>Extras</h4>
-<h5>Word2Vec model</h5>
-Our Twitter-specific word embedding model is not available on GitHub - its just too large. This will be fixed soon! For now, you'll have the change the <code>model</code> attribute of the Features class to point to a valid gensim Word2Vec model.
-<br>
 <h5>*Tweet texts</h5>
-We are not able to directly provide Tweet texts - as users may make tweets private or delete them, we instead only provide tweet ids. This allows users to collect available tweets from Twitter without unnecessarily exposing user data.
+We are not able to directly provide Tweet texts as users may make tweets private or delete them. Instead, we provide all of our metadata, along with tweet ids. This allows collection of available tweets via Twitter without unnecessarily exposing user data.
 <br>
-Because of this, the data provided contains an empty 'text' field. This field should be filled with Tweet texts collected from Twitter and tagged with the <a href="https://github.com/aritter/twitter_nlp">Twitter-NLP tagger</a>, with both --pos and --chunk flags. <br>
+Because of this, the data provided (data/part1/cleaned.json) contains an empty 'text' field. This field should be filled with Tweet texts collected from Twitter and tagged with the <a href="https://github.com/aritter/twitter_nlp">Twitter-NLP tagger</a>, with both --pos and --chunk flags. <br>
 
 The 'text' field for each tweet should look like this:<br>
 
