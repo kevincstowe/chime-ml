@@ -1,7 +1,15 @@
 # chime-ml
 Code for Stowe et al 2016
 
-The code is now functional, provided all the necessary packages are installed.
+Takes a .json object of tweets. The object contains is keyed by tweet_id.
+<code>
+tweet_id:{'text':''*, 'geo_coords':'[lat, long]' or '[]', 'user':'user name', 'date':'MM-DD-YYYY HH:MM:SS', 'annotations':[list of possibles anns, or one element "None"], 'previous':'tweet_id of previous tweet in user stream', 'next':'tweet_id of next tweet in user stream'}
+</code>
+
+The json is loaded, featurized according the parameters of the CHIME-ML.py script, and then run through 5-fold CV. The algorithm can be specified as ALGORITHM parameter (either 'SVM','NB', or 'LR'). It returns F1, precision, and recall.
+
+The code should now be functional, provided all the necessary packages and addons are available. Please send any and all questions to:<br>
+kevin.stowe@colorado.edu
 
 <h3>CURRENTLY REQUIRES</h3>
 <h4>Packages</h4>
@@ -15,7 +23,7 @@ The code is now functional, provided all the necessary packages are installed.
 <h5>Word2Vec model</h5>
 Our Twitter-specific word embedding model is not available on GitHub - its just too large. This will be fixed soon! For now, you'll have the change the <code>model</code> attribute of the Features class to point to a valid gensim Word2Vec model.
 <br>
-<h5>Tweet texts</h5>
+<h5>*Tweet texts</h5>
 We are not able to directly provide Tweet texts - as users may make tweets private or delete them, we instead only provide tweet ids. This allows users to collect available tweets from Twitter without unnecessarily exposing user data.
 <br>
 Because of this, the data provided contains an empty 'text' field. This field should be filled with Tweet texts collected from Twitter and tagged with the <a href="https://github.com/aritter/twitter_nlp">Twitter-NLP tagger</a>, with both --pos and --chunk flags. <br>
