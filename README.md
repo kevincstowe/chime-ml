@@ -6,10 +6,10 @@ The code is now functional, provided all the necessary packages are installed.
 <h3>CURRENTLY REQUIRES</h3>
 <h4>Packages</h4>
 <a href="https://www.python.org/downloads/">Python</a>, tested on 3.4<br>
-<a href="https://radimrehurek.com/gensim/">GenSim, for the Word2Vec model</a><br>
-<a href="http://www.nltk.org/install.html">NLTK</a><br>
-<a href="http://www.numpy.org/">Nump</a><br>
-<a href="http://scikit-learn.org/stable/install.html">SciKit-Learn</a><br>
+<a href="https://radimrehurek.com/gensim/">GenSim</a>, for the Word2Vec model<br>
+<a href="http://www.nltk.org/install.html">NLTK</a>, for text normalization<br>
+<a href="http://scikit-learn.org/stable/install.html">SciKit-Learn</a>, for machine learning algorithms (SVM/Naive Bayes/LogReg)<br>
+<a href="http://www.numpy.org/">Numpy</a>, for support. SciKit-Learn or NLTK installations should include numpy/scipy.<br>
 
 <h4>Extras</h4>
 <h5>Word2Vec model</h5>
