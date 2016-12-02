@@ -1,14 +1,14 @@
+
 # CHIME-ML
 # Primary application for classification of the Hurricane Sandy data. Loads and featurizes the necessary json, and runs 5-fold CV.
 import json
 import random
+import sys
+import getopt
 
 import Features
 import Learn
 import Tools 
-
-#Soon to be updated to include NEW annotation. Currently only contains one part.
-PART = 1
 
 #basic feature sets for playing with
 BEST_FEATS = [0, 1000, 3000, 3000, 2, 384, True, True, True, True, True, True]
@@ -33,12 +33,8 @@ VIEWEG = FEATS[11]         #NOT IMPLEMENTED - boolean whether to include feature
 
 ALGORITHM = "SVM"          #Pick your algorithm - currently can be Support Vector Machines ('SVM'), Logistic Regression ('LR'), or Naive Bayes ('NB'). More could be added via the Learn module
 
-
-if PART == 1:
-    DEFAULT_DATA = "data/part1/part1_tagged.json"
-else:
-    print ("other parts not available")
-    sys.exit(1)
+#You'll have to change this to a json with non-empty 'text' fields -- see https://github.com/kevincstowe/chime-ml/README.md
+DEFAULT_DATA = "data/part1/part1_cleaned.json"
 
 #Method for loading the data. It takes the json, and splits the tagged text into four different useful attributes
 def build_pos_json(json_data):
@@ -60,10 +56,10 @@ def build_pos_json(json_data):
     return json_data
     
 #Heavy lifting. Loads the data, splits it into partitions, and passes it through the Learn module. 
-#cat       : Which tag to test
+#tag       : Which tag to test
 #param     : Parameter that is passed to the machine learning algorithm. Allows for parameter testing
 #n         : Number of cross validation folds to go through
-def run_cv(data=DEFAULT_DATA, cat="None", param=None, n=5):
+def run_cv(data=DEFAULT_DATA, tag="None", param=None, n=5):
     data_json = build_pos_json(json.load(open(data)))
     data_keys = list(data_json.keys())
 
@@ -78,12 +74,12 @@ def run_cv(data=DEFAULT_DATA, cat="None", param=None, n=5):
 
         #builds all the lexical dictionaries for key terms, bigrams, and trigrams
         #TODO : Does this need 'tagged_data'?? I don't think so
-        data_structures = Features.build_structures(cv_train_json, tagged_data=data_json, key_term_count=KEY_TERM_BEST, bow_count=BOW_BEST, bigram_count=BIGRAM_BEST, trigram_count=TRIGRAM_BEST, add_pos=POS, tag=cat)
+        data_structures = Features.build_structures(cv_train_json, tagged_data=data_json, key_term_count=KEY_TERM_BEST, bow_count=BOW_BEST, bigram_count=BIGRAM_BEST, trigram_count=TRIGRAM_BEST, add_pos=POS, tag=tag)
 
         #Turn both training and test data into dictionaries of {key:feature_vector}
         #context_data is required - if tweets are randomized, previous and following tweets may not be in the right json
-        train_data = vectorize_json(cv_train_json, cat, data_structures, context_data=data_json)
-        test_data = vectorize_json(cv_test_json, cat, data_structures, context_data=data_json)
+        train_data = vectorize_json(cv_train_json, tag, data_structures, context_data=data_json)
+        test_data = vectorize_json(cv_test_json, tag, data_structures, context_data=data_json)
 
         #pass the vectors to the Learn module, which returns a dictionary of predictions {key:1 or 0}, as well as (f1, prec, rec)
         if param:
@@ -98,7 +94,7 @@ def run_cv(data=DEFAULT_DATA, cat="None", param=None, n=5):
     #after n passes, average the results
     return (f1/n, prec/n, rec/n)
 
-def vectorize_json(js, category, data_structures, tagged=True, context_data=None):
+def vectorize_json(js, tag, data_structures, tagged=True, context_data=None):
     current_vectors = {}
 
     #for each key in the json provided, generate all the features required by the parameters
@@ -142,8 +138,8 @@ def vectorize_json(js, category, data_structures, tagged=True, context_data=None
                 features += Features.bow_features(sent_words,data_structures=data_structures)
 
         #Pick the correct tag for the training data! Works slightly different for "None" and other tags
-        if category != "None":
-            if category in js[key]["annotations"] or category in [a.split("-")[0] for a in js[key]["annotations"]]:
+        if tag != "None":
+            if tag in js[key]["annotations"] or tag in [a.split("-")[0] for a in js[key]["annotations"]]:
                 features.append(1)
             else:
                 features.append(0)
@@ -156,4 +152,31 @@ def vectorize_json(js, category, data_structures, tagged=True, context_data=None
         current_vectors[key] = features
     return current_vectors
 
-print (run_cv(param=5000))
+
+#Main method as suggested by van Rossum, simplified                                                                                            
+def main(argv=None):
+    if argv is None:
+        argv = sys.argv
+    try:
+        opts, args = getopt.getopt(argv[1:], "hp:t:", ["help", "param:", "tag:"])
+    except:
+        print ("Error in args : " + str(argv[1:]))
+        return 2
+
+    param = None
+    tag = "None"
+    for o in opts:
+        if o[0] == "-p" or o[0] == "--param":
+            param = float(o[1])
+        if o[0] == "-t" or o[0] == "--tag":
+            tag = o[1]
+
+    if len(args) == 0:
+        print (run_cv(param=param,tag=tag))
+    if len(args) == 1:
+        print (run_cv(data=args[0],param=param,tag=tag))
+
+    return 0
+
+if __name__ == "__main__":
+    sys.exit(main())

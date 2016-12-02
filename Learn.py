@@ -13,7 +13,7 @@ from sklearn.svm import SVC
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.naive_bayes import BernoulliNB
 
-def learn(train_data, test_data, mod="SVM", keys=False, param=None, tag="None"):
+def learn(train_data, test_data, mod="SVM", keys=False, param=1, tag="None"):
     start = time.time()
     X_train = []
     y_train = []
@@ -41,7 +41,7 @@ def learn(train_data, test_data, mod="SVM", keys=False, param=None, tag="None"):
 
     max_f1 = 0
     if mod == "LR":
-        model = LogisticRegression(C=1) 
+        model = LogisticRegression(C=param) 
     elif mod == "BNB":
         model = BernoulliNB(alpha=param, binarize=0.0)
     elif mod == "SVM":
