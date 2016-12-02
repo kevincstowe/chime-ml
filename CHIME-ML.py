@@ -59,10 +59,10 @@ def build_pos_json(json_data):
 #tag       : Which tag to test
 #param     : Parameter that is passed to the machine learning algorithm. Allows for parameter testing
 #n         : Number of cross validation folds to go through
-def run_cv(data=DEFAULT_DATA, tag="None", param=None, n=5):
+def run_cv(data=DEFAULT_DATA, tag="none", param=None, n=5):
     data_json = build_pos_json(json.load(open(data)))
     data_keys = list(data_json.keys())
-
+    print (tag)
     f1 = 0
     prec = 0
     rec = 0
@@ -138,13 +138,13 @@ def vectorize_json(js, tag, data_structures, tagged=True, context_data=None):
                 features += Features.bow_features(sent_words,data_structures=data_structures)
 
         #Pick the correct tag for the training data! Works slightly different for "None" and other tags
-        if tag != "None":
-            if tag in js[key]["annotations"] or tag in [a.split("-")[0] for a in js[key]["annotations"]]:
+        if tag != "none":
+            if tag in js[key]["annotations"] or tag in [a.split("-")[0].lower() for a in js[key]["annotations"]]:
                 features.append(1)
             else:
                 features.append(0)
         else:
-            if "None" not in js[key]["annotations"]:
+            if "none" not in js[key]["annotations"]:
                 features.append(1)
             else:
                 features.append(0)
@@ -155,6 +155,19 @@ def vectorize_json(js, tag, data_structures, tagged=True, context_data=None):
 
 #Main method as suggested by van Rossum, simplified                                                                                            
 def main(argv=None):
+    def print_help():
+        print ("CHIME-ML - Tweet Classification for Natural Disasters")
+        print ("2016")
+        print ("")
+        print ("A filename can be specified as an optional parameter. Otherwise the default file will be used")
+        print ("")
+        print ("Optional Parameters")
+        print ("-p, --param : specifies the parameter to use for the ML algorithm")
+        print ("-t, --tag   : specifies which tag to classify")
+        print ("")
+        print ("Questions : kevin.stowe@colorado.edu")
+        print ("")
+
     if argv is None:
         argv = sys.argv
     try:
@@ -164,12 +177,19 @@ def main(argv=None):
         return 2
 
     param = None
-    tag = "None"
+    tag = "none"
     for o in opts:
+        if o[0] == "-h" or o[0] == "--help":
+            print_help()
+            sys.exit(0)
         if o[0] == "-p" or o[0] == "--param":
             param = float(o[1])
         if o[0] == "-t" or o[0] == "--tag":
-            tag = o[1]
+            tag = o[1].lower()
+            if "-" in o[1]:
+                tag = tag.split("-")[0]
+            elif "_" in o[1]:
+                tag = tag.split("_")[0]
 
     if len(args) == 0:
         print (run_cv(param=param,tag=tag))

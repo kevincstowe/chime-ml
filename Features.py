@@ -117,7 +117,7 @@ def time_bucket(date, number_of_buckets=0, one_hot=True):
         else:
             return [0]       
 
-def build_structures(training_data, tagged_data=None, key_term_count=0, bow_count=0, bigram_count=0, trigram_count=0, add_pos=False, tag="None"):
+def build_structures(training_data, tagged_data=None, key_term_count=0, bow_count=0, bigram_count=0, trigram_count=0, add_pos=False, tag="none"):
     result = {}
 
     if key_term_count > 0:
@@ -177,7 +177,7 @@ def pull_key_terms(d, min_count):
             kt_vals[key] = 0.
     return kt_vals
 
-def build_kt_dict(data, gram=0, number_of_terms=500, min_count=0, pos=False, tag="None"):
+def build_kt_dict(data, gram=0, number_of_terms=500, min_count=0, pos=False, tag="none"):
     d = {}
     tot_pos = 0.
     tot_neg = 0.
@@ -190,7 +190,7 @@ def build_kt_dict(data, gram=0, number_of_terms=500, min_count=0, pos=False, tag
             word_data = data[key]["words"]
 
         tot_all += 1
-        anns = data[key]["annotations"]
+        anns = [a.split("-")[0].lower() for a in data[key]["annotations"]]
 
         for i in range(len(word_data)-(gram)):
             if gram > 0:
@@ -200,14 +200,14 @@ def build_kt_dict(data, gram=0, number_of_terms=500, min_count=0, pos=False, tag
                     
             #sloppy but works : if the words not in the dictionary, generate it as a two element array, 0:negatives, 1:positives, and incremenet as they're seen
             if word not in d:
-                if "None" in anns or (tag != "None" and tag not in anns and tag not in [t.split("-")[0] for t in anns]):
+                if "none" in anns or (tag != "none" and tag not in anns and tag not in [t.split("-")[0] for t in anns]):
                     tot_neg += 1
                     d[word] = [1, 0]
                 else:
                     tot_pos += 1
                     d[word] = [0, 1]
             else:
-                if "None" in anns or (tag != "None" and tag not in anns and tag not in [t.split("-")[0] for t in anns]):
+                if "none" in anns or (tag != "none" and tag not in anns and tag not in [t.split("-")[0] for t in anns]):
                     tot_neg += 1
                     d[word][0] += 1
                 else:
