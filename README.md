@@ -1,5 +1,5 @@
 # chime-ml
-Code for Stowe et al 2016
+Code for <a href="http://aclweb.org/anthology/W/W16/W16-6201.pdf">Stowe et al 2016</a>
 
 Takes a .json object of tweets. The object contains is keyed by tweet_id.
 
