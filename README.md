@@ -1,5 +1,5 @@
 # chime-ml
-Code for <a href="http://aclweb.org/anthology/W/W16/W16-6201.pdf">Stowe et al 2016</a>
+Code used in production of <a href="http://aclweb.org/anthology/W/W16/W16-6201.pdf">Stowe et al 2016</a>. There've been significant bug fixes and processing improvements since the paper, but the dataset, methods, and features are the same.
 
 Takes a .json object (defaulting to the provided 'data/part1/cleaned.json') of tweets. The object contains is keyed by tweet_id.
 
