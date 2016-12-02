@@ -28,21 +28,21 @@ def xldate_to_datetime(xldate):
     delta = datetime.timedelta(days=xldate)
     return temp+delta
 
-def find_prev_key(all_data, current_key, context):
+def find_key(current_key, all_data, context):
     if context == 0:
-        if current_key and current_key != "None":
-            try:
-                return all_data[current_key]["id"]
-            except KeyError as e:
-                return ""
-        else:
-            return ""
+        return current_key
     else:
+        if context > 0:
+            inc = -1
+            next_key = "previous"
+        else:
+            next_key = "next"
+            inc = 1
+
         if current_key in all_data.keys():
-            return find_prev_key(all_data, all_data[current_key]["previous"], context-1)
+            return find_key(all_data[current_key][next_key], all_data, context+inc)
         else:
             return ""
-
 def weighted_word_frequencies(doc_json, words=10, normalize=True):
     pos_wfs = {}
     all_wfs = {}

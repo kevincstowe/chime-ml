@@ -2,10 +2,10 @@
 #FEATURES Functions
 #All methods of the Features class
 ####
-try:
-    import theano
-except:
-    pass
+#try:
+#    import theano
+#except:
+#    pass
 
 from gensim.models import Word2Vec
 
@@ -22,11 +22,8 @@ import Tools
 
 PMI = True
 tbs = False
-w2v = None
 
 W2V_MODEL = "models/basic_w2v"
-PERSONAL_PRONOUNS = ["he", "she", "him", "her", "you", "your", "yours", "they", "them", "theirs", "their", "i", "me", "we", "us"]
-
     
 def ner(tagged_words):
     print (tagged_words)
@@ -35,6 +32,7 @@ def ner(tagged_words):
 def vieweg(tweet_data):
     return []
 
+w2v=None
 def cbow_feature(tweet, average=False):
     global w2v
     if not w2v:
@@ -48,7 +46,7 @@ def cbow_feature(tweet, average=False):
 
     ##Implement average cbow##
             
-    return res
+    return list(res)
 
 def rt_feature(tweet):
     res = [0, 0]
@@ -59,25 +57,10 @@ def rt_feature(tweet):
             res[1] += 1
     return res
 
-def personal_pronouns_feature(tweet, simple=True):
-    res = [0] * len(PERSONAL_PRONOUNS)
-    if simple:
-        res = [0]
-
-    for word in tweet:
-        if word.lower() in PERSONAL_PRONOUNS:
-            if not simple:
-                res[PERSONAL_PRONOUNS.index(word.lower())] += 1
-            else:
-                res[0] += 1
-    return res
-
 def web_feature(tweet):
-    res = [0]*38
     all_webs = sorted([line.strip() for line in open("resources/all_webs.txt")])
     for word in tweet:
         if word in all_webs:
-            #res[all_webs.index(word)] = 1
             return [1]
 
     return [0]
@@ -100,6 +83,11 @@ def time_bucket(date, number_of_buckets=0, one_hot=True):
     global buckets
     if not buckets:
         buckets = generate_buckets(number_of_buckets)
+    if not date:
+        if one_hot:
+            return [0]*len(buckets)
+        else:
+            return [0]
     try:            
         date_time = time.mktime(time.strptime(date, "%Y-%m-%d %H:%M:%S"))
 
@@ -124,30 +112,28 @@ def time_bucket(date, number_of_buckets=0, one_hot=True):
         print ("Exception : " + str(e))
         print ("Attempted date_time : " + str(date_time))
         print ("Returning zero vector")
-        print (buckets[0])
-        print (buckets[len(buckets)-1])
         if one_hot:
             return [0]*len(buckets)
         else:
             return [0]       
 
-def build_structures(training_data, tagged_data=None, key_term_count=0, bow_threshhold=0, bigram_threshhold=0, trigram_threshhold=0, add_pos=False, tag="None", backup_data=None):
+def build_structures(training_data, tagged_data=None, key_term_count=0, bow_count=0, bigram_count=0, trigram_count=0, add_pos=False, tag="None"):
     result = {}
 
     if key_term_count > 0:
         result["key_term_dict"] = build_kt_dict(training_data, number_of_terms=key_term_count, min_count=3, gram=0, pos=False, tag=tag)
         if add_pos:
             result["tagged_key_term_dict"] = build_kt_dict(tagged_data, number_of_terms=key_term_count, gram=0, pos=True)
-    if bow_threshhold > 0:
-        result["bow_dict"] = build_bow_dict(training_data, bow_threshhold)
-    if bigram_threshhold > 0:
-        result["bigram_dict"] = build_kt_dict(training_data, number_of_terms=bigram_threshhold, gram=1, pos=False, tag=tag)
+    if bow_count > 0:
+        result["bow_dict"] = build_bow_dict(training_data, bow_count)
+    if bigram_count > 0:
+        result["bigram_dict"] = build_kt_dict(training_data, number_of_terms=bigram_count, gram=1, pos=False, tag=tag)
         if add_pos:
-            result["tagged_bigram_dict"] = build_kt_dict(tagged_data, number_of_terms=bigram_threshhold, gram=1, pos=True)
-    if trigram_threshhold > 0:
-        result["trigram_dict"] = build_kt_dict(training_data, number_of_terms=trigram_threshhold, gram=2, pos=False, tag=tag)
+            result["tagged_bigram_dict"] = build_kt_dict(tagged_data, number_of_terms=bigram_count, gram=1, pos=True)
+    if trigram_count > 0:
+        result["trigram_dict"] = build_kt_dict(training_data, number_of_terms=trigram_count, gram=2, pos=False, tag=tag)
         if add_pos:
-            result["tagged_trigram_dict"] = build_kt_dict(tagged_data, number_of_terms=trigram_threshhold, gram=2, pos=True)
+            result["tagged_trigram_dict"] = build_kt_dict(tagged_data, number_of_terms=trigram_count, gram=2, pos=True)
 
     return result
 
@@ -157,7 +143,7 @@ def build_bow_dict(data, min_count=10, w2v=False, n=5):
         count = 0
         for key in data.keys():
             count += 1
-            for word in Tools.normalize_string(data[key]["text"]):
+            for word in data[key]["words"]:
                 Tools.add_count_to_dict(d, word)
     except AttributeError as e:
         for line in data:
@@ -199,11 +185,9 @@ def build_kt_dict(data, gram=0, number_of_terms=500, min_count=0, pos=False, tag
 
     for key in data.keys():
         if pos:
-            tags = [w.split("/")[-1] for w in data[key]["text"].split()]
-            sent_string = " ".join(["/".join(w.split("/")[:-2]) for w in data[key]["text"].split()])
-            word_data = [Tools.normalize_word(sent_string.split()[i]) + "/" + tags[i] for i in range(len(sent_string.split()))]
+            word_data = [data[key]["words"][i] + "/" + data[key]["pos_tags"][i] for i in range(len(data[key]["words"]))]
         else:
-            word_data = Tools.normalize_string(data[key]["text"])
+            word_data = data[key]["words"]
 
         tot_all += 1
         anns = data[key]["annotations"]
@@ -248,31 +232,31 @@ def build_kt_dict(data, gram=0, number_of_terms=500, min_count=0, pos=False, tag
 
     return result
 
-def featurize(tweet, tagged_words=[], data_structures=None):
+def bow_features(words, tagged_words=[], data_structures=None):
     features = []
     if "key_term_dict" in data_structures.keys():
-        features += bow(tweet, data_structures["key_term_dict"], gram=0)
+        features += bow(words, data_structures["key_term_dict"], gram=1)
     if "bow_dict" in data_structures.keys():
-        features += bow(tweet, data_structures["bow_dict"], gram=0)
+        features += bow(words, data_structures["bow_dict"], gram=1)
     if "bigram_dict" in data_structures.keys():
-        features += bow(tweet, data_structures["bigram_dict"], gram=1)
+        features += bow(words, data_structures["bigram_dict"], gram=2)
     if "trigram_dict" in data_structures.keys():
-        features += bow(tweet, data_structures["trigram_dict"], gram=2)
+        features += bow(words, data_structures["trigram_dict"], gram=3)
 
     if "tagged_key_term_dict" in data_structures.keys():
         features += bow(tagged_words, data_structures["tagged_key_term_dict"])
     if "tagged_bigram_dict" in data_structures.keys():
-        features += bow(tagged_words, data_structures["tagged_bigram_dict"])
+        features += bow(tagged_words, data_structures["tagged_bigram_dict"], gram=2)
     if "tagged_trigram_dict" in data_structures.keys():
-        features += bow(tagged_words, data_structures["tagged_trigram_dict"])
+        features += bow(tagged_words, data_structures["tagged_trigram_dict"], gram=3)
 
     return features
 
-def bow(tweet, d, gram=0):
+def bow(tweet, d, gram=1):
     result = [0] * len(d)
 
-    for i in range(len(tweet)-gram):
-        if gram > 0:
+    for i in range(len(tweet)-(gram-1)):
+        if gram > 1:
             word = "_".join(tweet[i:i+gram])
         else:
             word = tweet[i]

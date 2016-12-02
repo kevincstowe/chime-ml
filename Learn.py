@@ -26,14 +26,14 @@ def learn(train_data, test_data, mod="SVM", keys=False, param=None, tag="None"):
         y_train.append(float(train_data[key][-1]))
     for key in test_data:
         test_keys.append(key)
-        X_test.append(test_data[key][0:-1])
-        y_test.append(test_data[key][-1])
+        X_test.append([float(x) for x in test_data[key][0:-1]])
+        y_test.append(float(test_data[key][-1]))
 
-    np.array(X_train, float)
-    np.array(y_train, float)
+#    np.array(X_train, float)
+#    np.array(y_train, float)
 
-    X_test = np.array(X_test, float)
-    y_test = np.array(y_test, float)
+#    np.array(X_test, float)
+#    np.array(y_test, float)
 
     correct_ones = []
     false_negs = []
