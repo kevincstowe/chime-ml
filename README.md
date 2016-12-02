@@ -10,7 +10,9 @@ NLTK<br>
 numpy<br>
 sklearn<br>
 
-<b>HOWEVER</b><br>
+<b>NOT INCLUDED</b><br>
+Our Twitter-specific word embedding model is not available on GitHub - its just too large. This will be fixed soon! For now, you'll have the change the <code>model</code> attribute of the Features class to point to a valid gensim Word2Vec model.
+<br>
 We are not able to directly provide Tweet texts - as users may make tweets private or delete them, we instead only provide tweet ids. This allows users to collect available tweets from Twitter without unnecessarily exposing user data.
 <br>
 Because of this, the data provided contains an empty 'text' field. This field should be filled with Tweet texts collected from Twitter and tagged with the <a href="https://github.com/aritter/twitter_nlp">Twitter-NLP tagger</a>, with both --pos and --chunk flags. <br>
