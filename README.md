@@ -1,16 +1,32 @@
 # chime-ml
 Code used in production of <a href="http://aclweb.org/anthology/W/W16/W16-6201.pdf">Stowe et al 2016</a>. There've been significant bug fixes and processing improvements since the paper, but the dataset, methods, and features are the same.
 
+
+<h3>USAGE</h3>
+python CHIME-ML.py (-p or --param FLOAT) (-t STRING) (datafile)
+
+The -p argument can be used to specify the main parameter the ML algorithm uses - it will change depending on the algorithm.
+
+The -t argument can be used to specify which tag to classify - this can be any of the high level tags
+<ul>
+<li>Sentiment</li>
+<li>Information</li>
+<li>Reporting</li>
+<li>Movement</li>
+<li>Preparation</li>
+<li>Actions</li>
+</ul>
+
+Finally, a dataset file may be passed - if not, it will use the default file set in CHIME-ML.py.
+
+<h3>Code Overview</h3>
 Takes a .json object (defaulting to the provided 'data/part1/cleaned.json') of tweets. The object contains is keyed by tweet_id.
 
 <code>
 tweet_id:{'text':''*, 'geo_coords':'[lat, long]' or '[]', 'user':'user name', 'date':'MM-DD-YYYY HH:MM:SS', 'annotations':[list of possibles anns, or one element "None"], 'previous':'tweet_id of previous tweet in user stream', 'next':'tweet_id of next tweet in user stream'}
 </code>
 
-The json is loaded, featurized according the parameters of the CHIME-ML.py script, and then run through 5-fold CV. The algorithm can be specified as ALGORITHM parameter (either 'SVM','NB', or 'LR'). It returns F1, precision, and recall.
-
-The code should now be functional, provided all the necessary packages and addons are available. Please send any and all questions to:<br>
-kevin.stowe@colorado.edu
+The json is loaded, featurized according the parameters of the CHIME-ML.py script using the Features.py module, and then run through 5-fold CV using the Learn.py module. The particular ML algorithm can be specified as ALGORITHM parameter (either 'SVM','NB', or 'LR'). It returns a dictionary of tweet_id:binary prediction, as well as F1, precision, and recall.
 
 <h3>CURRENTLY REQUIRES</h3>
 <h4>Packages</h4>
@@ -20,8 +36,8 @@ kevin.stowe@colorado.edu
 <a href="http://scikit-learn.org/stable/install.html">SciKit-Learn</a>, for machine learning algorithms (SVM/Naive Bayes/LogReg)<br>
 <a href="http://www.numpy.org/">Numpy</a>, for support. SciKit-Learn or NLTK installations should include numpy/scipy.<br>
 
-<h4>Extras</h4>
-<h5>*Tweet texts</h5>
+<h3>Extras</h3>
+<h4>*Tweet texts</h4>
 We are not able to directly provide Tweet texts as users may make tweets private or delete them. Instead, we provide all of our metadata, along with tweet ids. This allows collection of available tweets via Twitter without unnecessarily exposing user data.
 <br>
 Because of this, the data provided (data/part1/cleaned.json) contains an empty 'text' field. This field should be filled with Tweet texts collected from Twitter and tagged with the <a href="https://github.com/aritter/twitter_nlp">Twitter-NLP tagger</a>, with both --pos and --chunk flags. <br>
@@ -37,3 +53,9 @@ As an alternative, one could format their tweets with dummy values for POS and N
 
 This allows the featurizer to parse the next, without POS or NER features.
 
+<h4>Word Embeddings</h4>
+The word embedding model is provided by <a href="https://git-lfs.github.com/">Git's Large File Storage</a>
+
+
+<h5>Please send any and all questions to:<br></h5>
+kevin.stowe@colorado.edu
