@@ -2,6 +2,7 @@
 Code for Stowe et al 2016
 
 Takes a .json object of tweets. The object contains is keyed by tweet_id.
+
 <code>
 tweet_id:{'text':''*, 'geo_coords':'[lat, long]' or '[]', 'user':'user name', 'date':'MM-DD-YYYY HH:MM:SS', 'annotations':[list of possibles anns, or one element "None"], 'previous':'tweet_id of previous tweet in user stream', 'next':'tweet_id of next tweet in user stream'}
 </code>
